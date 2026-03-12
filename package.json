@@ -1,0 +1,19 @@
+{
+  "name": "bjj-record",
+  "version": "0.1.0",
+  "description": "Privacy-first, offline-capable PWA for Brazilian jiu-jitsu practitioners",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace backend dev\" \"yarn workspace frontend dev\"",
+    "build": "yarn workspace backend build && yarn workspace frontend build",
+    "test": "yarn workspace backend test && yarn workspace frontend test",
+    "lint": "yarn workspace backend lint && yarn workspace frontend lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
