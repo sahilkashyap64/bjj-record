@@ -30,17 +30,34 @@ import { InjuriesModule } from './modules/injuries/injuries.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres' as const,
-        host: configService.get('DB_HOST', 'localhost'),
-        port: configService.get('DB_PORT', 5432),
-        username: configService.get('DB_USER', 'postgres'),
-        password: configService.get('DB_PASSWORD', 'postgres'),
-        database: configService.get('DB_NAME', 'bjj_record'),
-        entities: [User, SessionLog, Round, RoundAction, Partner, Technique, Injury],
-        synchronize: false,
-        logging: false,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get('DATABASE_URL');
+        
+        if (databaseUrl) {
+          // Use connection string from DATABASE_URL (Neon, Railway, etc.)
+          return {
+            type: 'postgres' as const,
+            url: databaseUrl,
+            entities: [User, SessionLog, Round, RoundAction, Partner, Technique, Injury],
+            synchronize: false,
+            logging: false,
+            ssl: { rejectUnauthorized: false },
+          };
+        }
+        
+        // Fallback to individual connection parameters (local development)
+        return {
+          type: 'postgres' as const,
+          host: configService.get('DB_HOST', 'localhost'),
+          port: configService.get('DB_PORT', 5432),
+          username: configService.get('DB_USER', 'postgres'),
+          password: configService.get('DB_PASSWORD', 'postgres'),
+          database: configService.get('DB_NAME', 'bjj_record'),
+          entities: [User, SessionLog, Round, RoundAction, Partner, Technique, Injury],
+          synchronize: false,
+          logging: false,
+        };
+      },
     }),
     PassportModule,
     JwtModule.registerAsync({
